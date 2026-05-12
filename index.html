@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -14,8 +13,17 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .date-btn.active { background-color: #4E342E; color: white; transform: scale(1.05); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
         
-        /* 交通資訊大字體 1.25rem (20px) */
-        .transport-content { max-height: 0; overflow: hidden; transition: all 0.3s ease; font-size: 1.25rem; line-height: 1.7; font-weight: 500; color: #3E2723; }
+        /* 交通資訊文字樣式 (僅用於主要行程) */
+        .transport-content { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: all 0.3s ease; 
+            font-size: 1.25rem; 
+            line-height: 1.7; 
+            font-weight: 500; 
+            color: #3E2723;
+            white-space: pre-line; 
+        }
         .transport-content.open { max-height: 1000px; margin-top: 15px; border-top: 1px solid #eee; padding-top: 12px; }
         
         /* 時間軸對稱排版核心 */
@@ -29,12 +37,12 @@
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="max-w-md mx-auto min-h-screen pb-40">
+<body class="max-w-md mx-auto min-h-screen pb-20">
 
     <!-- Loading -->
     <div id="loading-overlay" class="fixed inset-0 z-[100] bg-[#F7F3EB] flex flex-col items-center justify-center p-10 text-center">
         <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-        <p class="font-bold opacity-40 text-sm italic">正在同步行程資料...</p>
+        <p class="font-bold opacity-40 text-sm italic text-[#5D4037]">福岡行程同步中...</p>
     </div>
 
     <!-- Header -->
@@ -43,7 +51,7 @@
             <h1 class="text-2xl font-black text-[#3E2723]">福岡行程</h1>
             <div id="sync-indicator" class="flex items-center space-x-1 opacity-0 transition-opacity">
                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-[10px] font-bold tracking-widest">同步中</span>
+                <span class="text-[10px] font-bold tracking-widest uppercase">Live Sync</span>
             </div>
         </div>
         <div id="date-scroll" class="flex overflow-x-auto no-scrollbar space-x-3 py-2 px-2"></div>
@@ -59,7 +67,7 @@
         <!-- 主要行程區 -->
         <div class="flex items-center space-x-2 mb-4 opacity-30">
             <i class="fa-solid fa-route text-xs"></i>
-            <h2 class="text-[10px] font-black tracking-widest uppercase">主要行程</h2>
+            <h2 class="text-[15px] font-black tracking-widest uppercase">主要行程</h2>
         </div>
         <div id="main-list" class="mb-12 flex flex-col items-stretch">
             <!-- JS 生成 -->
@@ -68,32 +76,32 @@
         <!-- 額外景點 -->
         <div id="extra-header-label" class="hidden flex items-center space-x-2 mb-6 opacity-40">
             <i class="fa-solid fa-compass text-xs"></i>
-            <h2 class="text-[10px] font-black tracking-widest uppercase">額外景點</h2>
+            <h2 class="text-[15px] font-black tracking-widest uppercase">額外景點</h2>
         </div>
         <div id="extra-list" class="grid grid-cols-2 gap-3 mb-12"></div>
 
         <!-- 願望清單 -->
         <div class="flex items-center space-x-2 mb-6 opacity-40">
             <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
-            <h2 class="text-[10px] font-black tracking-widest uppercase">願望清單 (新增)</h2>
+            <h2 class="text-[15px] font-black tracking-widest uppercase">願望清單 (新增)</h2>
         </div>
         <div id="wish-list" class="grid grid-cols-2 gap-3 min-h-[50px]"></div>
     </main>
 
     <!-- 浮動按鈕 -->
-    <button onclick="openModal()" class="fixed bottom-24 left-6 w-14 h-14 bg-[#4E342E] text-white rounded-full shadow-2xl flex items-center justify-center z-50 active:scale-90 transition-transform">
+    <button onclick="openModal()" class="fixed bottom-10 left-6 w-14 h-14 bg-[#4E342E] text-white rounded-full shadow-2xl flex items-center justify-center z-50 active:scale-90 transition-transform">
         <i class="fa-solid fa-plus text-2xl"></i>
     </button>
 
     <!-- 新增彈窗 -->
     <div id="add-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center">
-            <h2 class="text-xl font-bold mb-6">新增願望景點</h2>
+            <h2 class="text-xl font-bold mb-6 text-[#4E342E]">新增願望景點</h2>
             <div class="space-y-4 text-sm text-left">
-                <input id="new-title" type="text" placeholder="景點名稱" class="w-full bg-gray-50 border p-4 rounded-2xl outline-none">
+                <input id="new-title" type="text" placeholder="景點名稱" class="w-full bg-gray-50 border p-4 rounded-2xl outline-none focus:ring-2 ring-[#D4A373]">
                 <input id="new-tag" type="text" placeholder="標籤 (例如:必吃)" class="w-full bg-gray-50 border p-4 rounded-2xl outline-none">
                 <input id="new-link" type="text" placeholder="Google 地圖連結" class="w-full bg-gray-50 border p-4 rounded-2xl outline-none">
-                <textarea id="new-note" placeholder="詳細備註" rows="3" class="w-full bg-gray-50 border p-4 rounded-2xl outline-none"></textarea>
+                <textarea id="new-note" placeholder="詳細備註 (此處不顯示於清單卡片)" rows="3" class="w-full bg-gray-50 border p-4 rounded-2xl outline-none hidden"></textarea>
             </div>
             <div class="flex gap-3 mt-8">
                 <button onclick="closeModal()" class="flex-1 py-4 font-bold text-gray-400 bg-gray-50 rounded-2xl">取消</button>
@@ -101,16 +109,6 @@
             </div>
         </div>
     </div>
-
-    <!-- 底部導覽 -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-lg border-t border-gray-100 flex justify-around py-6 px-6 z-30">
-        <div class="flex flex-col items-center text-[#3E2723]">
-            <i class="fa-solid fa-calendar-check text-xl"></i><span class="text-[10px] mt-2 font-bold tracking-widest uppercase">行程管理</span>
-        </div>
-        <div onclick="window.open('https://www.google.com/maps')" class="flex flex-col items-center opacity-20">
-            <i class="fa-solid fa-map-location-dot text-xl"></i><span class="text-[10px] mt-2 font-bold tracking-widest uppercase">地圖導航</span>
-        </div>
-    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -128,74 +126,74 @@
 
         const initialSeed = {
             1: { main: [
-                { id: "1-1", title: "博多站前 Richmond", tag: "入住", link: "https://maps.app.goo.gl/LMyFVYJ6Tss4hihq8", note: "1. 出境後搭接駁車到機場國內線，轉地鐵搭機場線(橘)坐到博多站後步行\n2. 直接在國際線搭公車到博多站" }
+                { id: "1-1", title: "博多站前 Richmond", tag: "入住", link: "https://www.google.com/maps/search/?api=1&query=Richmond+Hotel+Hakata+Ekimae", note: "1. 出境後搭接駁車到機場國內線，轉地鐵搭機場線(橘)坐到博多站後步行\n2. 直接在國際線搭公車到博多站" }
             ], extra: [
-                { id: "1-2", title: "友都八喜", link: "https://maps.app.goo.gl/mS1QwwfVsuQz2kyo6" },
-                { id: "1-3", title: "超市", link: "https://maps.app.goo.gl/nTWG3kdGvdFXQeYB9" }
+                { id: "1-2", title: "友都八喜", link: "https://www.google.com/maps/search/?api=1&query=Yodobashi+Camera+Multimedia+Hakata" },
+                { id: "1-3", title: "超市", link: "https://www.google.com/maps/search/?api=1&query=Hakata+Station+Supermarket" }
             ], wish: [] },
             2: { main: [
-                { id: "2-1", title: "Nissan 租車博多南店", tag: "11:00 取車", link: "https://maps.app.goo.gl/md8M2frrQ1Kx4VeS6" },
-                { id: "2-2", title: "如意輪寺", link: "https://maps.app.goo.gl/kkbnA1M4FnYdGrbB6" },
-                { id: "2-3", title: "英國小鎮", link: "https://maps.app.goo.gl/7c9Mgizp2QKn4BhA9" },
-                { id: "2-4", title: "Kamon Inn Yufuin", tag: "住宿" },
-                { id: "2-5", title: "金鱗湖", link: "https://maps.app.goo.gl/gkfPx7QKbBvyDnVj7" }
+                { id: "2-1", title: "Nissan 租車博多南店", tag: "11:00 取車", link: "https://maps.app.goo.gl/Gt2Q6WZMxS4Winbc8" },
+                { id: "2-2", title: "如意輪寺", link: "https://www.google.com/maps/search/?api=1&query=Nyoirinji+Temple" },
+                { id: "2-3", title: "英國小鎮", link: "https://www.google.com/maps/search/?api=1&query=Yufuin+Floral+Village" },
+                { id: "2-4", title: "Kamon Inn Yufuin", tag: "住宿", link: "https://www.google.com/maps/search/?api=1&query=Kamon+Inn+Yufuin" },
+                { id: "2-5", title: "金鱗湖", link: "https://www.google.com/maps/search/?api=1&query=Kinrin+Lake" }
             ], extra: [
-                { id: "2-6", title: "浮羽神社", link: "https://maps.app.goo.gl/BieNuwdBmM5eaU499" },
-                { id: "2-7", title: "AEON 超市", link: "https://maps.app.goo.gl/4avRXy6AJf6y6ZWm7" }
+                { id: "2-6", title: "浮羽神社", link: "https://www.google.com/maps/search/?api=1&query=Ukiha+Inari+Shrine" },
+                { id: "2-7", title: "AEON 超市", link: "https://www.google.com/maps/search/?api=1&query=AEON+Supermarket+Yufuin" }
             ], wish: [] },
             3: { main: [
-                { id: "3-1", title: "高千穗峽", link: "https://maps.app.goo.gl/P8evaoRKJuLvm24Y9", note: "1. 第二停車場\n2. 高千穗峽谷步道\n3. 真名井瀑布\n4. 返回停車場" },
-                { id: "3-2", title: "上色見熊野座神社", link: "https://maps.app.goo.gl/kpVfvMePpKr6dosE9" },
-                { id: "3-3", title: "草千里之濱", link: "https://maps.app.goo.gl/tDiupNCLm4Z6D5s27" },
-                { id: "3-4", title: "fav KUMAMOTO", tag: "住宿" }
+                { id: "3-1", title: "高千穗峽", link: "https://www.google.com/maps/search/?api=1&query=Takachiho+Gorge", note: "1. 第二停車場\n2. 高千穗峽谷步道\n3. 真名井瀑布\n4. 返回停車場" },
+                { id: "3-2", title: "上色見熊野座神社", link: "https://www.google.com/maps/search/?api=1&query=Kamishimi+Kumanoza+Shrine" },
+                { id: "3-3", title: "草千里之濱", link: "https://www.google.com/maps/search/?api=1&query=Kusasenri-ga-hama" },
+                { id: "3-4", title: "fav KUMAMOTO", tag: "住宿", link: "https://www.google.com/maps/search/?api=1&query=fav+KUMAMOTO" }
             ], extra: [
-                { id: "3-5", title: "高千穗小火車", link: "https://maps.app.goo.gl/hZZ1Rgdt8EAEmTdy6" },
-                { id: "3-6", title: "天安河原", link: "https://maps.app.goo.gl/6e5n4d1FJ2neV6536" },
-                { id: "3-7", title: "冰淇淋", link: "https://maps.app.goo.gl/DzQtZog3pmK1DCcP9" },
-                { id: "3-8", title: "熊本車站", link: "https://maps.app.goo.gl/fdMGBiZAX1SQ7a4N7", note: "步行到吳服町站，搭到熊本站前" },
-                { id: "3-9", title: "上下通商店街", link: "https://maps.app.goo.gl/jDpXP4mkLjRT1vHV6", note: "步行到河原町站，搭到熊本城。市役所前" },
-                { id: "3-10", title: "屋台村", link: "https://maps.app.goo.gl/Jas5UTg1SL6XPCxr8" }
+                { id: "3-5", title: "高千穗小火車", link: "https://www.google.com/maps/search/?api=1&query=Takachiho+Amaterasu+Railway" },
+                { id: "3-6", title: "天安河原", link: "https://www.google.com/maps/search/?api=1&query=Amano+Yasukawara" },
+                { id: "3-7", title: "冰淇淋", link: "https://www.google.com/maps/search/?api=1&query=Takachiho+Soft+Serve" },
+                { id: "3-8", title: "熊本車站", link: "https://www.google.com/maps/search/?api=1&query=Kumamoto+Station" },
+                { id: "3-9", title: "上下通商店街", link: "https://www.google.com/maps/search/?api=1&query=Kamitori+Shimotori+Shopping+Street" },
+                { id: "3-10", title: "屋台村", link: "https://www.google.com/maps/search/?api=1&query=Kumamoto+Yatai+Mura" }
             ], wish: [] },
             4: { main: [
-                { id: "4-1", title: "熊本城", link: "https://maps.app.goo.gl/PuoEEN15EGxNFvTx9" },
-                { id: "4-2", title: "城彩苑" },
-                { id: "4-3", title: "Tenjin TUMUGU", tag: "入住", note: "還車後搭計程車或地鐵七隈線到天神南站" },
-                { id: "4-4", title: "Nissan 租車", tag: "19:00 還車" }
+                { id: "4-1", title: "熊本城", link: "https://www.google.com/maps/search/?api=1&query=Kumamoto+Castle" },
+                { id: "4-2", title: "城彩苑", link: "https://www.google.com/maps/search/?api=1&query=Sakura-no-baba+Josaien" },
+                { id: "4-3", title: "Tenjin TUMUGU", tag: "入住", link: "https://www.google.com/maps/search/?api=1&query=Apartment+Hotel+Tenjin+TUMUGU", note: "1. 還車後搭計程車過去，但怕行李載不下\n2. 先開到住宿放行李跟CHECK IN(住宿有停車位)，再回去還車(要注意時間)\n3. 大眾交通工具\n(1) 走回博多車站，搭七隈線(綠)到天神南站，再步行前往\n(2) 公車(不好抓時間、帶行李麻煩)" },
+                { id: "4-4", title: "Nissan 租車還車", tag: "19:00 還車", link: "https://maps.app.goo.gl/Gt2Q6WZMxS4Winbc8" }
             ], extra: [
-                { id: "4-5", title: "上下通商店街", link: "https://maps.app.goo.gl/Y3Y9JeVBmpS9WuFRA" },
-                { id: "4-6", title: "熊本熊廣場", link: "https://maps.app.goo.gl/De6fZsbHXZWdEHzo7" },
-                { id: "4-7", title: "中洲屋台" },
-                { id: "4-8", title: "櫛田神社" }
+                { id: "4-5", title: "上下通商店街", link: "https://www.google.com/maps/search/?api=1&query=Shimotori+Shopping+Arcade" },
+                { id: "4-6", title: "熊本熊廣場", link: "https://www.google.com/maps/search/?api=1&query=Kumamon+Square" },
+                { id: "4-7", title: "中洲屋台", link: "https://www.google.com/maps/search/?api=1&query=Nakasu+Yatai" },
+                { id: "4-8", title: "櫛田神社", link: "https://www.google.com/maps/search/?api=1&query=Kushida+Shrine" }
             ], wish: [] },
             5: { flow: "1. 步行至天神站，搭西鐵電車至「西鐵柳川站」\n2. 搭西鐵電車至「二日市站」換「太宰府線」\n3. 回程同樣先回二日市換車回天神", main: [
-                { id: "5-1", title: "柳川遊船" },
-                { id: "5-2", title: "太宰府天滿宮" }
+                { id: "5-1", title: "柳川遊船", link: "https://www.google.com/maps/search/?api=1&query=Yanagawa+River+Cruising" },
+                { id: "5-2", title: "太宰府天滿宮", link: "https://www.google.com/maps/search/?api=1&query=Dazaifu+Tenmangu" }
             ], extra: [], wish: [] },
             6: { main: [
-                { id: "6-1", title: "門司港懷舊區", link: "https://maps.app.goo.gl/sjE5Y5K51ZvVkxGn6", note: "1. 地鐵到博多\n2. JR音速號到小倉\n3. 轉鹿兒島本線到門司港" },
-                { id: "6-2", title: "小倉城", link: "https://maps.app.goo.gl/fg29WDzPCLRVnyeu5", note: "1. 鹿兒島本線回小倉站\n2. JR音速號到博多站\n3. 七隈線到天神南站" }
+                { id: "6-1", title: "門司港懷舊區", link: "https://www.google.com/maps/search/?api=1&query=Mojiko+Retrio", note: "1. 地鐵到博多\n2. JR音速號到小倉\n3. 轉鹿兒島本線到門司港" },
+                { id: "6-2", title: "小倉城", link: "https://www.google.com/maps/search/?api=1&query=Kokura+Castle", note: "1. 鹿兒島本線回小倉站\n2. JR音速號到博多站\n3. 七隈線到天神南站" }
             ], extra: [
-                { id: "6-3", title: "THE OUTLETS", link: "https://maps.app.goo.gl/cthsGkpL4u9kPQ328" },
-                { id: "6-4", title: "魚町銀天街", link: "https://maps.app.goo.gl/a9CPd4Qx5y6dmYcm9" },
-                { id: "6-5", title: "門司港燒咖哩", link: "https://maps.app.goo.gl/iJmMwJZiKLVsjwxS7" },
-                { id: "6-6", title: "藍翼門司吊橋" }
+                { id: "6-3", title: "THE OUTLETS", link: "https://www.google.com/maps/search/?api=1&query=THE+OUTLETS+KITAKYUSHU" },
+                { id: "6-4", title: "魚町銀天街", link: "https://www.google.com/maps/search/?api=1&query=Uomachi+Gintengai" },
+                { id: "6-5", title: "門司港燒咖哩", link: "https://www.google.com/maps/search/?api=1&query=Mojiko+Baked+Curry" },
+                { id: "6-6", title: "藍翼門司吊橋", link: "https://www.google.com/maps/search/?api=1&query=Blue+Wing+Moji" }
             ], wish: [] },
             7: { main: [
-                { id: "7-1", title: "博多運河城" },
-                { id: "7-2", title: "PayPay Dome", link: "https://maps.app.goo.gl/6aVFwcdH6hejYQ9c8", note: "1. 天神站搭機場線到唐人町\n2. 巴士到 Fukuhama 2-chome" }
+                { id: "7-1", title: "博多運河城", link: "https://www.google.com/maps/search/?api=1&query=Canal+City+Hakata" },
+                { id: "7-2", title: "PayPay Dome", link: "https://www.google.com/maps/search/?api=1&query=Mizuho+PayPay+Dome+Fukuoka", note: "1. 天神站搭機場線到唐人町\n2. 巴士到 Fukuhama 2-chome" }
             ], extra: [
-                { id: "7-3", title: "王貞治棒球紀念館", link: "https://maps.app.goo.gl/BPa5xqGupvfY9TQKA" },
-                { id: "7-4", title: "咖啡廳", link: "https://maps.app.goo.gl/Fmj4Dsuw7jtGiuUTA" }
+                { id: "7-3", title: "王貞治棒球紀念館", link: "https://www.google.com/maps/search/?api=1&query=Oh+Sadaharu+Baseball+Museum" },
+                { id: "7-4", title: "咖啡廳", link: "https://www.google.com/maps/search/?api=1&query=Fukuoka+Cafe" }
             ], wish: [] },
             8: { main: [
-                { id: "8-1", title: "櫛田神社" },
-                { id: "8-2", title: "福岡機場" }
+                { id: "8-1", title: "櫛田神社", link: "https://www.google.com/maps/search/?api=1&query=Kushida+Shrine" },
+                { id: "8-2", title: "福岡機場", link: "https://www.google.com/maps/search/?api=1&query=Fukuoka+Airport" }
             ], extra: [], wish: [] }
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const dbRef = ref(db, "fukuoka_trip_final_release");
+        const dbRef = ref(db, "fukuoka_trip_final_v11_fixed");
         
         let currentDay = 1;
         let allData = {};
@@ -208,6 +206,7 @@
             
             const dayData = allData[currentDay] || { main: [], extra: [], wish: [] };
             
+            // 1. Day 5 交通動線
             if (dayData.flow) {
                 flowBox.classList.remove('hidden');
                 document.getElementById('flow-text').innerText = dayData.flow;
@@ -215,8 +214,9 @@
                 flowBox.classList.add('hidden');
             }
 
+            // 2. 主要行程：維持原有排版 (含點擊展開)
             let mainHtml = '';
-            if (dayData.main.length > 0) {
+            if (dayData.main && dayData.main.length > 0) {
                 mainHtml += `<div class="flex"><div class="timeline-left"><div class="timeline-sphere"></div></div></div>`;
                 dayData.main.forEach((item, idx) => {
                     mainHtml += `
@@ -248,6 +248,7 @@
             }
             mainBox.innerHTML = mainHtml;
 
+            // 3. 額外景點 (n*2)：僅保留名稱與標籤
             const extraHeader = document.getElementById('extra-header-label');
             if (dayData.extra && dayData.extra.length > 0) {
                 extraHeader.classList.remove('hidden');
@@ -265,6 +266,7 @@
                 extraBox.innerHTML = '';
             }
 
+            // 4. 願望清單 (n*2)：僅保留名稱與標籤
             if (dayData.wish && dayData.wish.length > 0) {
                 wishBox.innerHTML = dayData.wish.map(item => `
                     <div class="bg-[#5D4037] text-white rounded-3xl p-5 shadow-md relative text-center border border-white/10">
@@ -305,12 +307,12 @@
         window.saveNewWish = () => {
             const title = document.getElementById('new-title').value;
             if(!title) return;
-            const newItem = { id: "w-"+Date.now(), title, tag: document.getElementById('new-tag').value, link: document.getElementById('new-link').value, note: document.getElementById('new-note').value, type: 'wish' };
+            const newItem = { id: "w-"+Date.now(), title, tag: document.getElementById('new-tag').value, link: document.getElementById('new-link').value, note: '', type: 'wish' };
             if(!allData[currentDay].wish) allData[currentDay].wish = [];
             allData[currentDay].wish.push(newItem);
             save();
             window.closeModal();
-            ['new-title','new-tag','new-link','new-note'].forEach(id => document.getElementById(id).value = '');
+            ['new-title','new-tag','new-link'].forEach(id => document.getElementById(id).value = '');
         };
 
         const renderDates = () => {
@@ -328,5 +330,3 @@
     </script>
 </body>
 </html>
-
-```
